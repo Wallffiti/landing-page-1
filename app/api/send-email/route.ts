@@ -27,10 +27,12 @@ export async function POST(req: Request) {
     } = await req.json();
 
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      secure: process.env.SMTP_SECURE === "true",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
@@ -719,7 +721,7 @@ ${
     await Promise.all(
       recipients.map((email) =>
         transporter.sendMail({
-          from: `Realfun Secretariat ${process.env.EMAIL_USER}`,
+          from: process.env.SMTP_FROM || 'noreply@example.com',
           to: email,
           cc: 'support@bugcrusher.net',
           subject: "BugCrusher Hackathon Registration Confirmation",

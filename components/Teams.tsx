@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; // Ensure you have a supabase client
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 interface Team {
   id: string;
@@ -15,13 +17,24 @@ interface Team {
 export default function Teams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Fetch teams from Supabase
   useEffect(() => {
     const fetchTeams = async () => {
       setLoading(true);
+      
+
+      // // BEFORE (Shows all years)
+      // const { data, error } = await supabase
+      //   .from("teams")
+      //   .select("id, teamName, category, teacherName, registrationStatus")
+      //   .order("registrationStatus", { ascending: false });
+
+      // AFTER (Shows only current year)
+      const currentYear = new Date().getFullYear();
       const { data, error } = await supabase
-        .from("teams")
+        .from("current_year_teams")  // Use view or add filter
         .select("id, teamName, category, teacherName, registrationStatus")
         .order("registrationStatus", { ascending: false });
 
@@ -39,10 +52,15 @@ export default function Teams() {
   return (
     <section id="teams" className="py-12">
       <div className="container mx-auto px-4 md:w-4/5 lg:w-3/4">
-        <h2 className="text-3xl font-bold mb-2">Registered Teams</h2>
-        <p className="text-gray-600 mb-6">
-          Registered teams can log into their dashboard. Pending teams, please wait for approval.
-        </p>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Registered Teams</h2>
+            <p className="text-gray-600">
+              Registered teams can log into their dashboard. Pending teams, please wait for approval.
+            </p>
+          </div>
+          <Button onClick={() => router.push("/signup")}>Sign Up</Button>
+        </div>
 
         {loading ? (
           <p className="text-gray-600">Loading teams...</p>

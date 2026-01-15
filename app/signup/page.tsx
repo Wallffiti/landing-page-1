@@ -476,6 +476,12 @@ export default function SignUp() {
   };
 
   const handleSelectChange = (value: string, name: string, index?: number) => {
+    // Prevent saving empty values - this is a workaround for shadcn Select component
+    // firing onChange with empty string when options change
+    if (!value || value === "") {
+      return;
+    }
+    
     setFormData((prev) => {
       if (index !== undefined) {
         const updatedTeamMembers = [...prev.teamMembers];
@@ -529,35 +535,7 @@ export default function SignUp() {
 
       setExistingTeamNames((prev) => [...prev, formData.teamName]);
 
-      const emailResponse = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          teamName: formData.teamName,
-          teacherEmail: formData.teacherEmail,
-          teacherName: formData.teacherName,
-          teacherPhone: formData.teacherPhone,
-          teacherIC: formData.teacherIC,
-          teacherSchoolName: formData.teacherSchoolName,
-          size: formData.size,
-          representingSchool: formData.representingSchool,
-          schoolName: formData.schoolName,
-          schoolAddress: formData.schoolAddress,
-          postalCode: formData.postalCode,
-          educationLevel: formData.educationLevel,
-          category: formData.category,
-          city: formData.city,
-          state: formData.state,
-          teamMembers: formData.teamMembers,
-          teacherGender: formData.teacherGender,
-          teacherRace: formData.teacherRace,
-        }),
-      });
-
-      const emailData = await emailResponse.json();
-
-      if (!emailResponse.ok) throw new Error(emailData.error);
-
+      // Email sending is disabled - users will track status at /status page
       setIsSuccess(true);
       setShowResultModal(true);
     } catch (error) {
@@ -573,7 +551,7 @@ export default function SignUp() {
     setShowResultModal(false);
     setAnimate(false);
     if (isSuccess) {
-      router.push("/");
+      router.push("/status");
     }
   };
 
@@ -588,6 +566,10 @@ export default function SignUp() {
   };
 
   const prevStep = () => {
+    // Reset terms agreement when navigating away from page 6
+    if (currentStep === 6) {
+      setAgreeToTerms(false);
+    }
     setCurrentStep((prevStep) => prevStep - 1);
     scrollToTop();
   };
@@ -1127,8 +1109,8 @@ export default function SignUp() {
               ) : (
                 <Button
                   type="submit"
-                  disabled={isLoading}
-                  className="inline-flex justify-center items-center"
+                  disabled={isLoading || !agreeToTerms}
+                  className="inline-flex justify-center items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
@@ -1298,23 +1280,30 @@ const SelectField = ({
   onChange,
   options,
   required = false,
+  disabled = false,
+  error = "",
 }) => (
   <div className="space-y-2">
     <Label htmlFor={name}>{label}</Label>
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger id={name}>
-        <SelectValue placeholder="Select an option" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem
-            key={option.value || option}
-            value={option.value || option}
-          >
-            {option.label || option}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-);
+    <Select 
+      value={value && value !== "" ? value : ""} 
+      onValueChange={onChange} 
+      disabled={disabled}
+      >
+        <SelectTrigger id={name} className={error ? "border-red-500" : ""}>
+          <SelectValue placeholder="Select an option" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem
+              key={option.value || option}
+              value={option.value || option}
+            >
+              {option.label || option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && <div className="text-red-600 text-sm">{error}</div>}
+    </div>
+  );

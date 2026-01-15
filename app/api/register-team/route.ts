@@ -62,10 +62,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fetch existing data from Supabase
+    // Get current year
+    const currentYear = new Date().getFullYear();
+
+    // Fetch existing teams for current year only
     const { data: existingTeams, error: fetchError } = await supabase
       .from("teams")
-      .select("teamName, teacherEmail, teacherIC, teamMembers");
+      .select("teamName, teacherEmail, teacherIC, teamMembers")
+      .eq("competition_year", currentYear)
+      .eq("is_archived", false);
+
 
     if (fetchError) throw new Error("Error fetching existing teams.");
 
@@ -104,7 +110,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert new team
+    // Insert new team WITH competition_year explicitly set
     const { data, error } = await supabase.from("teams").insert([
       {
         teamName,
@@ -113,12 +119,23 @@ export async function POST(req: Request) {
         teacherGender,
         teacherRace,
         teamMembers,
+        competition_year: currentYear,
         registrationStatus: "Pending",
         ...rest,
       },
     ]);
 
-    if (error) throw error;
+    if (error) {
+      // Handle unique constraint violations (race condition scenario)
+      if (error.code === "23505") {
+        // PostgreSQL unique constraint violation
+        return NextResponse.json(
+          { error: `Registration failed: One or more fields (team name, email, or IC) are already registered. Please refresh and try again.` },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
 
     return NextResponse.json({ success: true, team: data }, { status: 201 });
   } catch (error: any) {
@@ -128,9 +145,12 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
+    const currentYear = new Date().getFullYear();
     const { data, error } = await supabase
       .from("teams")
-      .select("teamName");
+      .select("teamName")
+      .eq("competition_year", currentYear)
+      .eq("is_archived", false);
 
     if (error) throw error;
 
