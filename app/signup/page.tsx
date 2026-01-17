@@ -369,7 +369,7 @@ interface FormData {
     schoolName: string;
     parentName: string;
     parentPhone: string;
-    parentEmail: string;
+    studentEmail: string;
     size: string;
     codingExperience: string;
   }>;
@@ -404,7 +404,7 @@ const initialFormData: FormData = {
       schoolName: "",
       parentName: "",
       parentPhone: "",
-      parentEmail: "",
+      studentEmail: "",
       size: "",
       codingExperience: "",
     })),
@@ -643,10 +643,10 @@ export default function SignUp() {
           newErrors[`parentName-${index}`] = "Parent name is required.";
         if (!member.parentPhone)
           newErrors[`parentPhone-${index}`] = "Parent phone is required.";
-        if (!member.parentEmail)
-          newErrors[`parentEmail-${index}`] = "Parent email is required.";
+        if (!member.studentEmail)
+          newErrors[`studentEmail-${index}`] = "Student email is required.";
         else
-          newErrors[`parentEmail-${index}`] = validateEmail(member.parentEmail);
+          newErrors[`studentEmail-${index}`] = validateEmail(member.studentEmail);
         if (formData.representingSchool === "no" && !member.schoolName) {
           newErrors[`schoolName-${index}`] = "School name is required.";
         }
@@ -902,6 +902,15 @@ export default function SignUp() {
                     error={errors[`ic-${memberIndex}`]}
                   />
                   <InputField
+                    label="Student Email"
+                    name="studentEmail"
+                    type="email"
+                    value={formData.teamMembers[memberIndex].studentEmail}
+                    onChange={(e) => handleChange(e, memberIndex)}
+                    required={true}
+                    error={errors[`studentEmail-${memberIndex}`]}
+                  />
+                  <InputField
                     label="School Name"
                     name="schoolName"
                     type="text"
@@ -931,6 +940,15 @@ export default function SignUp() {
                     onChange={(e) => handleChange(e, memberIndex)}
                     required={true}
                     error={errors[`ic-${memberIndex}`]}
+                  />
+                  <InputField
+                    label="Student Email"
+                    name="studentEmail"
+                    type="email"
+                    value={formData.teamMembers[memberIndex].studentEmail}
+                    onChange={(e) => handleChange(e, memberIndex)}
+                    required={true}
+                    error={errors[`studentEmail-${memberIndex}`]}
                   />
                 </>
               )}
@@ -1011,15 +1029,6 @@ export default function SignUp() {
                 onChange={(e) => handleChange(e, memberIndex)}
                 required={true}
                 error={errors[`parentPhone-${memberIndex}`]}
-              />
-              <InputField
-                label="Parent Email"
-                name="parentEmail"
-                type="email"
-                value={formData.teamMembers[memberIndex].parentEmail}
-                onChange={(e) => handleChange(e, memberIndex)}
-                required={true}
-                error={errors[`parentEmail-${memberIndex}`]}
               />
             </div>
           </>

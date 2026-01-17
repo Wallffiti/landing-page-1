@@ -21,34 +21,12 @@ export default function NavBar() {
               <ul className="flex items-center gap-2 text-[#282a88] text-xs font-medium font-sans">
                 <li>
                   <Link
-                    href="https://juniorscratch.bugcrusher.net/"
+                    href="https://hackathon.bugcrusher.net"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-blue-600"
                   >
-                    Login As Junior
-                  </Link>
-                </li>
-                <li>|</li>
-                <li>
-                  <Link
-                    href="http://seniorscratch.bugcrusher.net"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600"
-                  >
-                    Login As Senior Scratch
-                  </Link>
-                </li>
-                <li>|</li>
-                <li>
-                  <Link
-                    href="http://seniorweb.bugcrusher.net"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600"
-                  >
-                    Login As Senior Web
+                    Login to Hackathon
                   </Link>
                 </li>
               </ul>
@@ -309,32 +287,12 @@ export default function NavBar() {
               <ul className="flex flex-col items-center gap-2 text-center">
                 <li>
                   <Link
-                    href="https://juniorscratch.bugcrusher.net/"
+                    href="https://hackathon.bugcrusher.net"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#a8a8a8] text-xs font-medium font-sans hover:text-blue-600 py-2.5 px-2.5"
                   >
-                    Login As Junior
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="http://seniorscratch.bugcrusher.net"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#a8a8a8] text-xs font-medium font-sans hover:text-blue-600 py-2.5 px-2.5"
-                  >
-                    Login As Senior Scratch
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="http://seniorweb.bugcrusher.net"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#a8a8a8] text-xs font-medium font-sans hover:text-blue-600 py-2.5 px-2.5"
-                  >
-                    Login As Senior Web
+                    Login to Hackathon
                   </Link>
                 </li>
               </ul>

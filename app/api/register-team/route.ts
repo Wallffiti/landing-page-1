@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     // Extract all emails and ICs
-    const allEmails = [teacherEmail, ...teamMembers.map(m => m.parentEmail)];
+    const allEmails = [teacherEmail, ...teamMembers.map(m => m.studentEmail)];
     const allICs = [teacherIC, ...teamMembers.map(m => m.ic)];
 
     // Check for duplicates within the submission
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     // Extract existing emails and ICs
     const existingEmails = new Set([
       ...existingTeams.map(team => team.teacherEmail),
-      ...existingTeams.flatMap(team => team.teamMembers.map(m => m.parentEmail))
+      ...existingTeams.flatMap(team => team.teamMembers.map(m => m.studentEmail))
     ]);
     const existingICs = new Set([
       ...existingTeams.map(team => team.teacherIC),

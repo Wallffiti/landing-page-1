@@ -402,9 +402,9 @@ ${
     }</td>
 </tr>
 <tr>
-<td style="padding: 10px; word-break: break-word; border-top: 1px solid #dddddd; border-right: 1px solid #dddddd; border-bottom: 1px solid #dddddd; border-left: 1px solid #dddddd;">Parent Email</td>
+<td style="padding: 10px; word-break: break-word; border-top: 1px solid #dddddd; border-right: 1px solid #dddddd; border-bottom: 1px solid #dddddd; border-left: 1px solid #dddddd;">Student Email</td>
 <td style="padding: 10px; word-break: break-word; border-top: 1px solid #dddddd; border-right: 1px solid #dddddd; border-bottom: 1px solid #dddddd; border-left: 1px solid #dddddd;">${
-      member.parentEmail
+      member.studentEmail
     }</td>
 </tr>
 <tr>
@@ -715,7 +715,7 @@ ${
 </html>
     `;
 
-    const recipients = [teacherEmail, ...teamMembers.map((m) => m.parentEmail)];
+    const recipients = [teacherEmail, ...teamMembers.map((m) => m.studentEmail)];
 
     // Send email to teacher & team members
     await Promise.all(

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BugCrusher Sign Up",
+  title: "Bugcrusher Sign Up",
   icons: {
     icon: "/favicon.ico", // Path relative to app/ or public/
   },

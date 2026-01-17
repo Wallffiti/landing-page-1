@@ -5,7 +5,7 @@ import Teams from "@/components/Teams";
 export default function Status() {
   useEffect(() => {
     // Optional: Update title dynamically if needed
-    document.title = "BugCrusher Status";
+    document.title = "Bugcrusher Status";
   }, []);
 
   return (
