@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 // Validation functions
 const validateEmail = (email: string): string => {
@@ -49,8 +50,8 @@ const validateTeamName = (
 ): string => {
   if (!teamName.trim()) return "Team name is required.";
 
-  const normalizedInput = teamName.toUpperCase().replace(/\s+/g, ""); // Normalize: uppercase, no spaces
-  const forbiddenNames = ["BUGCRUSHER"]; // Base forbidden name
+  const normalizedInput = teamName.toUpperCase().replace(/\s+/g, "");
+  const forbiddenNames = ["BUGCRUSHER"];
 
   if (forbiddenNames.includes(normalizedInput)) {
     return "Team name cannot be 'Bug Crusher' or its variations.";
@@ -102,174 +103,6 @@ const ProgressIndicator = ({ currentStep, totalSteps }) => (
     </div>
   </div>
 );
-
-const stateCities = {
-  Kedah: [
-    "KUALA MUDA",
-    "KOTA SETAR",
-    "SIK",
-    "PADANG TERAP",
-    "PENDANG",
-    "BALING",
-    "KULIM BANDAR BAHARU",
-    "LANGKAWI",
-    "KUBANG PASU",
-    "YAN",
-  ],
-  "Pulau Pinang": [
-    "TIMUR LAUT",
-    "BARAT DAYA",
-    "SEBERANG PERAI UTARA",
-    "SEBERANG PERAI TENGAH",
-    "SEBERANG PERAI SELATAN",
-  ],
-  Perak: [
-    "BATANG PADANG",
-    "BAGAN DATUK",
-    "HILIR PERAK",
-    "KUALA KANGSAR",
-    "KERIAN",
-    "LARUT MATANG & SELAMA",
-    "HULU PERAK",
-    "PERAK TENGAH",
-    "KINTA UTARA",
-    "KINTA SELATAN",
-    "MANJUNG",
-    "MUALLIM",
-  ],
-  Selangor: [
-    "PETALING PERDANA",
-    "KUALA LANGAT",
-    "PETALING UTAMA",
-    "KUALA SELANGOR",
-    "KLANG",
-    "SABAK BERNAM",
-    "HULU LANGAT",
-    "HULU SELANGOR",
-    "GOMBAK",
-    "SEPANG",
-  ],
-  "Negeri Sembilan": [
-    "SEREMBAN",
-    "JEMPOL DAN JELEBU",
-    "PORT DICKSON",
-    "KUALA PILAH",
-    "TAMPIN",
-    "REMBAU",
-  ],
-  Melaka: ["JASIN", "ALOR GAJAH", "MELAKA TENGAH"],
-  Johor: [
-    "JOHOR BAHRU",
-    "MUAR",
-    "TANGKAK",
-    "KOTA TINGGI",
-    "MERSING",
-    "SEGAMAT",
-    "PONTIAN",
-    "KLUANG",
-    "BATU PAHAT",
-    "KULAI",
-    "PASIR GUDANG",
-  ],
-  Perlis: ["KANGAR"],
-  Pahang: [
-    "BENTONG",
-    "RAUB",
-    "CAMERON HIGHLANDS",
-    "TEMERLOH",
-    "JERANTUT",
-    "ROMPIN",
-    "LIPIS",
-    "MARAN",
-    "KUANTAN",
-    "BERA",
-    "PEKAN",
-  ],
-  Terengganu: [
-    "KUALA TERENGGANU",
-    "HULU TERENGGANU",
-    "KUALA NERUS",
-    "BESUT",
-    "DUNGUN",
-    "MARANG",
-    "KEMAMAN",
-    "SETIU",
-  ],
-  Kelantan: [
-    "KOTA BHARU",
-    "PASIR MAS",
-    "PASIR PUTEH",
-    "TANAH MERAH",
-    "KUALA KRAI",
-    "GUA MUSANG",
-    "BACHOK",
-    "TUMPAT",
-    "MACHANG",
-    "JELI",
-  ],
-  Sabah: [
-    "KENINGAU",
-    "KUALA PENYU",
-    "RANAU",
-    "PENSIANGAN NABAWAN",
-    "TAMBUNAN",
-    "BEAUFORT",
-    "TAWAU",
-    "TENOM",
-    "SANDAKAN",
-    "SIPITANG",
-    "BELURAN",
-    "TELUPID",
-    "PAPAR",
-    "LAHAD DATU",
-    "SEMPORNA",
-    "KINABATANGAN",
-    "KOTA KINABALU",
-    "KUNAK",
-    "PENAMPANG",
-    "KOTA MARUDU",
-    "TUARAN",
-    "PITAS",
-    "KOTA BELUD",
-    "KUDAT",
-  ],
-  "Kuala Lumpur": ["BANGSAR/PUDU", "KERAMAT", "SENTUL"],
-  Putrajaya: ["PUTRAJAYA"],
-  Labuan: ["LABUAN"],
-  Sarawak: [
-    "KUCHING",
-    "PADAWAN",
-    "BAU",
-    "LUNDU",
-    "SERIAN",
-    "SIMUNJAN",
-    "SRI AMAN",
-    "LUBOK ANTU",
-    "BETONG",
-    "SARATOK",
-    "SARIKEI",
-    "MERADONG",
-    "JULAU",
-    "SIBU",
-    "KANOWIT",
-    "SELANGAU",
-    "KAPIT",
-    "SONG",
-    "BELAGA",
-    "MUKAH",
-    "DALAT",
-    "DARO",
-    "TATAU/SEBAUH",
-    "MIRI",
-    "SUBIS",
-    "BARAM",
-    "LIMBANG",
-    "LAWAS",
-    "SAMARAHAN",
-    "BINTULU",
-  ],
-};
-
 
 const states = [
   "Johor",
@@ -342,6 +175,60 @@ const sizes = [
   { label: '3XL - 48"', value: "3xl" },
 ];
 
+const categoryOptions = ["Junior-Scratch", "Senior-HTML"];
+const categoryToEducationLevel: Record<string, string> = {
+  "Junior-Scratch": "Primary",
+  "Senior-HTML": "Secondary",
+};
+
+const normalizeCategory = (category: string) =>
+  (category || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+
+const normalizeState = (state: string) =>
+  (state || "").toLowerCase().replace(/\s+/g, " ").trim();
+
+type SchoolRecord = {
+  id?: string | number;
+  name: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  category: string;
+  raw: Record<string, any>;
+};
+
+type SchoolColumnMap = {
+  name: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  category: string;
+  code?: string;
+  district?: string;
+};
+
+type AddSchoolContext =
+  | { target: "team" }
+  | { target: "teacher" }
+  | { target: "member"; memberIndex: number };
+
+type NewSchoolForm = {
+  name: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  category: string;
+  code?: string;
+  district?: string;
+};
+
 interface FormData {
   teamName: string;
   representingSchool: string;
@@ -377,7 +264,7 @@ interface FormData {
 
 const initialFormData: FormData = {
   teamName: "",
-  representingSchool: "no",
+  representingSchool: "",
   schoolName: "",
   schoolAddress: "",
   postalCode: "",
@@ -421,6 +308,31 @@ export default function SignUp() {
   const [animate, setAnimate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState("");
+  const [schools, setSchools] = useState<SchoolRecord[]>([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(false);
+  const [schoolsError, setSchoolsError] = useState("");
+  const [teacherState, setTeacherState] = useState("");
+  const [memberStates, setMemberStates] = useState<string[]>(["", "", ""]);
+  const [teamSchoolSearch, setTeamSchoolSearch] = useState("");
+  const [teacherSchoolSearch, setTeacherSchoolSearch] = useState("");
+  const [memberSchoolSearches, setMemberSchoolSearches] = useState<string[]>([
+    "",
+    "",
+    "",
+  ]);
+  const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
+  const [addSchoolContext, setAddSchoolContext] = useState<AddSchoolContext | null>(null);
+  const [newSchool, setNewSchool] = useState<NewSchoolForm>({
+    name: "",
+    address: "",
+    postalCode: "",
+    city: "",
+    state: "",
+    category: "",
+    code: "",
+    district: "",
+  });
+  const [schoolColumnMap, setSchoolColumnMap] = useState<SchoolColumnMap | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -439,6 +351,128 @@ export default function SignUp() {
       }
     };
     fetchExistingTeams();
+  }, []);
+
+  const getFieldValue = (row: Record<string, any>, keys: string[]) => {
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null && `${row[key]}`.trim()) {
+        return row[key];
+      }
+    }
+    const normalizedMap: Record<string, string> = {};
+    Object.keys(row).forEach((k) => {
+      normalizedMap[k.toLowerCase().replace(/\s+/g, "")] = k;
+    });
+    for (const key of keys) {
+      const normalized = key.toLowerCase().replace(/\s+/g, "");
+      if (normalizedMap[normalized]) {
+        return row[normalizedMap[normalized]];
+      }
+    }
+    return "";
+  };
+
+  const deriveSchoolColumnMap = (row: Record<string, any>): SchoolColumnMap => {
+    const resolveKey = (variants: string[], fallback: string) => {
+      const found = variants.find((variant) => Object.prototype.hasOwnProperty.call(row, variant));
+      if (found) return found;
+      const normalizedMap: Record<string, string> = {};
+      Object.keys(row).forEach((k) => {
+        normalizedMap[k.toLowerCase().replace(/\s+/g, "")] = k;
+      });
+      for (const variant of variants) {
+        const normalized = variant.toLowerCase().replace(/\s+/g, "");
+        if (normalizedMap[normalized]) {
+          return normalizedMap[normalized];
+        }
+      }
+      return fallback;
+    };
+
+    return {
+      name: resolveKey(["Name of School", "name_of_school", "school_name", "name"], "name_of_school"),
+      address: resolveKey(
+        ["Correspondence Address", "correspondence_address", "address", "school_address"],
+        "correspondence_address"
+      ),
+      postalCode: resolveKey(["Poscode", "postal_code", "postcode", "poscode"], "poscode"),
+      city: resolveKey(["City", "city"], "city"),
+      state: resolveKey(["State", "state"], "state"),
+      category: resolveKey(["CATEGORY", "category"], "category"),
+      code: resolveKey(["School Code", "school_code", "schoolcode"], "school_code"),
+      district: resolveKey(["Education District", "education_district"], "education_district"),
+    };
+  };
+
+  const mapSchoolRow = (row: Record<string, any>): SchoolRecord => ({
+    id: row.id || row.ID || row.school_id || row.SCHOOL_ID,
+    name: `${getFieldValue(row, ["Name of School", "name_of_school", "school_name", "name"])}`.trim(),
+    address: `${getFieldValue(row, ["Correspondence Address", "correspondence_address", "address", "school_address"])}`.trim(),
+    postalCode: `${getFieldValue(row, ["Poscode", "postal_code", "postcode", "poscode"])}`.trim(),
+    city: `${getFieldValue(row, ["City", "city"])}`.trim(),
+    state: `${getFieldValue(row, ["State", "state"])}`.trim(),
+    category: `${getFieldValue(row, ["CATEGORY", "category"])}`.trim(),
+    raw: row,
+  });
+
+  const loadSchools = async () => {
+    setSchoolsLoading(true);
+    setSchoolsError("");
+    try {
+      const pageSize = 1000;
+      let from = 0;
+      let allRows: any[] = [];
+
+      while (true) {
+        const { data, error } = await supabase
+          .from("schools")
+          .select("*")
+          .order("id", { ascending: true })
+          .range(from, from + pageSize - 1);
+
+        if (error) {
+          setSchoolsError(error.message || "Failed to fetch schools.");
+          toast({
+            title: "Failed to load schools",
+            description: error.message || "Please try again later.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const rows = Array.isArray(data) ? data : [];
+        if (rows.length === 0) {
+          break;
+        }
+
+        allRows = allRows.concat(rows);
+
+        if (rows.length < pageSize) {
+          break;
+        }
+
+        from += pageSize;
+      }
+
+      if (allRows.length > 0) {
+        setSchoolColumnMap(deriveSchoolColumnMap(allRows[0]));
+      }
+      setSchools(allRows.map(mapSchoolRow).filter((school) => school.name));
+    } catch (error) {
+      console.error("Failed to fetch schools:", error);
+      setSchoolsError("Failed to fetch schools.");
+      toast({
+        title: "Failed to load schools",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setSchoolsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSchools();
   }, []);
 
   const handleChange = (
@@ -475,13 +509,7 @@ export default function SignUp() {
     }));
   };
 
-  const handleSelectChange = (value: string, name: string, index?: number) => {
-    // Prevent saving empty values - this is a workaround for shadcn Select component
-    // firing onChange with empty string when options change
-    if (!value || value === "") {
-      return;
-    }
-    
+  const setFormValue = (name: string, value: string, index?: number) => {
     setFormData((prev) => {
       if (index !== undefined) {
         const updatedTeamMembers = [...prev.teamMembers];
@@ -495,11 +523,206 @@ export default function SignUp() {
     });
   };
 
+  const handleSelectChange = (
+    value: string,
+    name: string,
+    index?: number,
+    allowEmpty = false
+  ) => {
+    // Prevent saving empty values - this is a workaround for shadcn Select component
+    // firing onChange with empty string when options change
+    if (!allowEmpty && (!value || value === "")) {
+      return;
+    }
+    setFormValue(name, value, index);
+  };
+
   const handleRadioChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
       representingSchool: value,
+      schoolName: value === "yes" ? prev.schoolName : "",
+      schoolAddress: value === "yes" ? prev.schoolAddress : "",
+      postalCode: value === "yes" ? prev.postalCode : "",
+      city: value === "yes" ? prev.city : "",
+      state: value === "yes" ? prev.state : "",
+      teacherSchoolName: value === "no" ? prev.teacherSchoolName : "",
+      teamMembers:
+        value === "yes"
+          ? prev.teamMembers.map((member) => ({ ...member, schoolName: "" }))
+          : prev.teamMembers,
     }));
+    if (value === "no") {
+      setTeacherState("");
+      setMemberStates(["", "", ""]);
+    }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    handleSelectChange(value, "category");
+    const educationLevel = categoryToEducationLevel[value] || "";
+    setFormData((prev) => ({
+      ...prev,
+      category: value,
+      educationLevel,
+      representingSchool: "",
+      schoolName: "",
+      schoolAddress: "",
+      postalCode: "",
+      city: "",
+      state: "",
+    }));
+    setTeacherState("");
+    setMemberStates(["", "", ""]);
+    setTeamSchoolSearch("");
+    setTeacherSchoolSearch("");
+    setMemberSchoolSearches(["", "", ""]);
+  };
+
+  const handleTeamSchoolSelect = (value: string) => {
+    handleSelectChange(value, "schoolName");
+    const selected = schools.find((school) => school.name === value);
+    if (selected) {
+      setFormData((prev) => ({
+        ...prev,
+        schoolName: selected.name,
+        schoolAddress: selected.address,
+        postalCode: selected.postalCode,
+        city: selected.city,
+      }));
+    }
+    setTeamSchoolSearch("");
+  };
+
+  const handleTeacherSchoolSelect = (value: string) => {
+    handleSelectChange(value, "teacherSchoolName");
+    setTeacherSchoolSearch("");
+  };
+
+  const handleMemberSchoolSelect = (value: string, index: number) => {
+    handleSelectChange(value, "schoolName", index);
+    setMemberSchoolSearches((prev) => {
+      const updated = [...prev];
+      updated[index] = "";
+      return updated;
+    });
+  };
+
+  const getFilteredSchools = (state: string, category: string) => {
+    if (!state || !category) return [];
+    const normalizedCategory = normalizeCategory(category);
+    const normalizedState = normalizeState(state);
+    return schools
+      .filter(
+        (school) =>
+          normalizeCategory(school.category) === normalizedCategory &&
+          normalizeState(school.state) === normalizedState
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  };
+
+  const filterSchoolsByQuery = (list: SchoolRecord[], query: string) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((school) => school.name.toLowerCase().includes(q));
+  };
+
+  const openAddSchoolModal = (context: AddSchoolContext) => {
+    setAddSchoolContext(context);
+    const initialState =
+      context.target === "team"
+        ? formData.state
+        : context.target === "teacher"
+        ? teacherState
+        : memberStates[context.memberIndex] || "";
+
+    setNewSchool({
+      name: "",
+      address: "",
+      postalCode: "",
+      city: "",
+      state: initialState,
+      category: formData.category,
+      code: "",
+      district: "",
+    });
+    setShowAddSchoolModal(true);
+  };
+
+  const handleAddSchoolSubmit = async () => {
+    if (
+      !newSchool.name ||
+      !newSchool.address ||
+      !newSchool.postalCode ||
+      !newSchool.city ||
+      !newSchool.state ||
+      !newSchool.category
+    ) {
+      toast({
+        title: "Missing required fields",
+        description: "Please complete all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const columnMap: SchoolColumnMap = schoolColumnMap || {
+      name: "name_of_school",
+      address: "correspondence_address",
+      postalCode: "poscode",
+      city: "city",
+      state: "state",
+      category: "category",
+      code: "school_code",
+      district: "education_district",
+    };
+
+    const payload: Record<string, any> = {
+      [columnMap.name]: newSchool.name,
+      [columnMap.address]: newSchool.address,
+      [columnMap.postalCode]: newSchool.postalCode,
+      [columnMap.city]: newSchool.city,
+      [columnMap.state]: newSchool.state,
+      [columnMap.category]: normalizeCategory(newSchool.category),
+    };
+
+    if (columnMap.code && newSchool.code) {
+      payload[columnMap.code] = newSchool.code;
+    }
+    if (columnMap.district && newSchool.district) {
+      payload[columnMap.district] = newSchool.district;
+    }
+
+    try {
+      const { error } = await supabase.from("schools").insert([payload]);
+      if (error) {
+        toast({
+          title: "Failed to add school",
+          description: error.message || "Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await loadSchools();
+      if (addSchoolContext) {
+        if (addSchoolContext.target === "team") {
+          handleTeamSchoolSelect(newSchool.name);
+        } else if (addSchoolContext.target === "teacher") {
+          handleTeacherSchoolSelect(newSchool.name);
+        } else {
+          handleMemberSchoolSelect(newSchool.name, addSchoolContext.memberIndex);
+        }
+      }
+      setShowAddSchoolModal(false);
+    } catch (error) {
+      console.error("Failed to add school:", error);
+      toast({
+        title: "Failed to add school",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -588,18 +811,20 @@ export default function SignUp() {
             formData.teamName,
             existingTeamNames
           );
-        if (!formData.city) newErrors.city = "City is required.";
-        if (!formData.state) newErrors.state = "State is required.";
+        if (!formData.category) newErrors.category = "Category is required.";
         if (!formData.educationLevel)
           newErrors.educationLevel = "Education level is required.";
-        if (!formData.category) newErrors.category = "Category is required.";
+        if (!formData.representingSchool)
+          newErrors.representingSchool = "Please select an option.";
         if (formData.representingSchool === "yes") {
+          if (!formData.state) newErrors.state = "State is required.";
           if (!formData.schoolName)
             newErrors.schoolName = "School name is required.";
           if (!formData.schoolAddress)
             newErrors.schoolAddress = "School address is required.";
           if (!formData.postalCode)
             newErrors.postalCode = "Postal code is required.";
+          if (!formData.city) newErrors.city = "City is required.";
         }
         break;
       case 2:
@@ -623,6 +848,9 @@ export default function SignUp() {
           !formData.teacherSchoolName
         ) {
           newErrors.teacherSchoolName = "School name is required.";
+        }
+        if (formData.representingSchool === "no" && !teacherState) {
+          newErrors.teacherState = "State is required.";
         }
         break;
       case 3:
@@ -649,6 +877,9 @@ export default function SignUp() {
           newErrors[`studentEmail-${index}`] = validateEmail(member.studentEmail);
         if (formData.representingSchool === "no" && !member.schoolName) {
           newErrors[`schoolName-${index}`] = "School name is required.";
+        }
+        if (formData.representingSchool === "no" && !memberStates[index]) {
+          newErrors[`memberState-${index}`] = "State is required.";
         }
         break;
       case 6:
@@ -677,12 +908,44 @@ export default function SignUp() {
                 error={errors.teamName}
               />
               <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <div className="text-xs text-gray-500">
+                  Junior is primary school, Senior is secondary school.
+                </div>
+                <Select
+                  value={
+                    formData.category && formData.category !== ""
+                      ? formData.category
+                      : ""
+                  }
+                  onValueChange={handleCategoryChange}
+                >
+                  <SelectTrigger
+                    id="category"
+                    className={errors.category ? "border-red-500" : ""}
+                  >
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.category && (
+                  <div className="text-red-600 text-sm">{errors.category}</div>
+                )}
+              </div>
+              <div className="space-y-2">
                 <Label>Representing School</Label>
                 <RadioGroup
                   name="representingSchool"
                   value={formData.representingSchool}
                   onValueChange={handleRadioChange}
                   className="flex flex-col space-y-1"
+                  disabled={!formData.category}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="representingSchoolYes" />
@@ -693,17 +956,95 @@ export default function SignUp() {
                     <Label htmlFor="representingSchoolNo">No</Label>
                   </div>
                 </RadioGroup>
+                {errors.representingSchool && (
+                  <div className="text-red-600 text-sm">{errors.representingSchool}</div>
+                )}
               </div>
               {formData.representingSchool === "yes" && (
                 <>
-                  <InputField
-                    label="School Name"
-                    name="schoolName"
-                    value={formData.schoolName}
-                    onChange={handleChange}
+                  <SelectField
+                    label="State"
+                    name="state"
+                    value={formData.state}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        state: value,
+                        schoolName: "",
+                        schoolAddress: "",
+                        postalCode: "",
+                        city: "",
+                      }))
+                    }
+                    options={states}
                     required={true}
-                    error={errors.schoolName}
+                    error={errors.state}
                   />
+                  <div className="space-y-2">
+                    <Label htmlFor="schoolName">School Name</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={
+                          formData.schoolName && formData.schoolName !== ""
+                            ? formData.schoolName
+                            : ""
+                        }
+                        onValueChange={handleTeamSchoolSelect}
+                        disabled={!formData.state || schoolsLoading}
+                      >
+                        <SelectTrigger
+                          id="schoolName"
+                          className={errors.schoolName ? "border-red-500" : ""}
+                        >
+                          <SelectValue
+                            placeholder={
+                              schoolsLoading
+                                ? "Loading schools..."
+                                : formData.state
+                                ? "Select a school"
+                                : "Select state first"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <div className="p-2">
+                            <Input
+                              placeholder="Search schools..."
+                              value={teamSchoolSearch}
+                              onChange={(e) => setTeamSchoolSearch(e.target.value)}
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          {filterSchoolsByQuery(
+                            getFilteredSchools(formData.state, formData.category),
+                            teamSchoolSearch
+                          ).map((school) => (
+                            <SelectItem key={school.name} value={school.name}>
+                              {school.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openAddSchoolModal({ target: "team" })}
+                        disabled={!formData.category || !formData.state}
+                        className="whitespace-nowrap"
+                      >
+                        Add school
+                      </Button>
+                    </div>
+                    {errors.schoolName && (
+                      <div className="text-red-600 text-sm">
+                        {errors.schoolName}
+                      </div>
+                    )}
+                    {schoolsError && (
+                      <div className="text-red-600 text-sm">{schoolsError}</div>
+                    )}
+                  </div>
                   <InputField
                     label="School Address"
                     name="schoolAddress"
@@ -711,6 +1052,8 @@ export default function SignUp() {
                     onChange={handleChange}
                     required={true}
                     error={errors.schoolAddress}
+                    readOnly={true}
+                    disabled={true}
                   />
                   <InputField
                     label="Postal Code"
@@ -719,61 +1062,20 @@ export default function SignUp() {
                     onChange={handleChange}
                     required={true}
                     error={errors.postalCode}
+                    readOnly={true}
+                    disabled={true}
+                  />
+                  <InputField
+                    label="City"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required={true}
+                    error={errors.city}
+                    readOnly={true}
+                    disabled={true}
                   />
                 </>
-              )}
-              <SelectField
-                label="State"
-                name="state"
-                value={formData.state}
-                onChange={(value) => {
-                  handleSelectChange(value, "state");
-                  // Reset city when state changes
-                  handleSelectChange("", "city");
-                }}
-                options={states}
-                required={true}
-              />
-              <SelectField
-                label="City"
-                name="city"
-                value={formData.city}
-                onChange={(value) => handleSelectChange(value, "city")}
-                options={
-                  formData.state ? stateCities[formData.state] || [] : []
-                }
-                required={true}
-                disabled={!formData.state} // Disable until state is selected
-              />
-              <SelectField
-                label="Education Level"
-                name="educationLevel"
-                value={formData.educationLevel}
-                onChange={(value) =>
-                  handleSelectChange(value, "educationLevel")
-                }
-                options={["Primary", "Secondary"]}
-                required={true}
-              />
-              {formData.educationLevel === "Primary" && (
-                <SelectField
-                  label="Category"
-                  name="category"
-                  value={formData.category}
-                  onChange={(value) => handleSelectChange(value, "category")}
-                  options={["Junior-Scratch"]}
-                  required={true}
-                />
-              )}
-              {formData.educationLevel === "Secondary" && (
-                <SelectField
-                  label="Category"
-                  name="category"
-                  value={formData.category}
-                  onChange={(value) => handleSelectChange(value, "category")}
-                  options={["Senior-Scratch", "Senior-HTML"]}
-                  required={true}
-                />
               )}
             </div>
           </>
@@ -837,14 +1139,83 @@ export default function SignUp() {
                 required={true}
               />
               {formData.representingSchool === "no" && (
-                <InputField
-                  label="School Name"
-                  name="teacherSchoolName"
-                  value={formData.teacherSchoolName}
-                  onChange={handleChange}
-                  required={true}
-                  error={errors.teacherSchoolName}
-                />
+                <>
+                  <SelectField
+                    label="State"
+                    name="teacherState"
+                    value={teacherState}
+                    onChange={(value) => {
+                      setTeacherState(value);
+                      setFormData((prev) => ({
+                        ...prev,
+                        teacherSchoolName: "",
+                      }));
+                    }}
+                    options={states}
+                    required={true}
+                    error={errors.teacherState}
+                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="teacherSchoolName">School Name</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={
+                          formData.teacherSchoolName && formData.teacherSchoolName !== ""
+                            ? formData.teacherSchoolName
+                            : ""
+                        }
+                        onValueChange={handleTeacherSchoolSelect}
+                        disabled={!teacherState || schoolsLoading}
+                      >
+                        <SelectTrigger
+                          id="teacherSchoolName"
+                          className={errors.teacherSchoolName ? "border-red-500" : ""}
+                        >
+                          <SelectValue
+                            placeholder={
+                              schoolsLoading
+                                ? "Loading schools..."
+                                : teacherState
+                                ? "Select a school"
+                                : "Select state first"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <div className="p-2">
+                            <Input
+                              placeholder="Search schools..."
+                              value={teacherSchoolSearch}
+                              onChange={(e) => setTeacherSchoolSearch(e.target.value)}
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          {filterSchoolsByQuery(
+                            getFilteredSchools(teacherState, formData.category),
+                            teacherSchoolSearch
+                          ).map((school) => (
+                            <SelectItem key={school.name} value={school.name}>
+                              {school.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openAddSchoolModal({ target: "teacher" })}
+                        disabled={!formData.category || !teacherState}
+                        className="whitespace-nowrap"
+                      >
+                        Add school
+                      </Button>
+                    </div>
+                    {errors.teacherSchoolName && (
+                      <div className="text-red-600 text-sm">{errors.teacherSchoolName}</div>
+                    )}
+                  </div>
+                </>
               )}
               <div className="flex flex-col">
                 <SelectField
@@ -910,15 +1281,6 @@ export default function SignUp() {
                     required={true}
                     error={errors[`studentEmail-${memberIndex}`]}
                   />
-                  <InputField
-                    label="School Name"
-                    name="schoolName"
-                    type="text"
-                    value={formData.teamMembers[memberIndex].schoolName}
-                    onChange={(e) => handleChange(e, memberIndex)}
-                    required={true}
-                    error={errors[`schoolName-${memberIndex}`]}
-                  />
                 </>
               )}
               {formData.representingSchool === "yes" && (
@@ -982,6 +1344,100 @@ export default function SignUp() {
                 options={applicableGrades}
                 required={true}
               />
+              {formData.representingSchool === "no" && (
+                <>
+                  <SelectField
+                    label="State"
+                    name={`memberState-${memberIndex}`}
+                    value={memberStates[memberIndex]}
+                    onChange={(value) => {
+                      setMemberStates((prev) => {
+                        const updated = [...prev];
+                        updated[memberIndex] = value;
+                        return updated;
+                      });
+                      setFormData((prev) => {
+                        const updatedTeamMembers = [...prev.teamMembers];
+                        updatedTeamMembers[memberIndex] = {
+                          ...updatedTeamMembers[memberIndex],
+                          schoolName: "",
+                        };
+                        return { ...prev, teamMembers: updatedTeamMembers };
+                      });
+                    }}
+                    options={states}
+                    required={true}
+                    error={errors[`memberState-${memberIndex}`]}
+                  />
+                  <div className="space-y-2">
+                    <Label htmlFor={`schoolName-${memberIndex}`}>School Name</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={
+                          formData.teamMembers[memberIndex].schoolName &&
+                          formData.teamMembers[memberIndex].schoolName !== ""
+                            ? formData.teamMembers[memberIndex].schoolName
+                            : ""
+                        }
+                        onValueChange={(value) => handleMemberSchoolSelect(value, memberIndex)}
+                        disabled={!memberStates[memberIndex] || schoolsLoading}
+                      >
+                        <SelectTrigger
+                          id={`schoolName-${memberIndex}`}
+                          className={errors[`schoolName-${memberIndex}`] ? "border-red-500" : ""}
+                        >
+                          <SelectValue
+                            placeholder={
+                              schoolsLoading
+                                ? "Loading schools..."
+                                : memberStates[memberIndex]
+                                ? "Select a school"
+                                : "Select state first"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <div className="p-2">
+                            <Input
+                              placeholder="Search schools..."
+                              value={memberSchoolSearches[memberIndex]}
+                              onChange={(e) =>
+                                setMemberSchoolSearches((prev) => {
+                                  const updated = [...prev];
+                                  updated[memberIndex] = e.target.value;
+                                  return updated;
+                                })
+                              }
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          {filterSchoolsByQuery(
+                            getFilteredSchools(memberStates[memberIndex], formData.category),
+                            memberSchoolSearches[memberIndex]
+                          ).map((school) => (
+                            <SelectItem key={school.name} value={school.name}>
+                              {school.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openAddSchoolModal({ target: "member", memberIndex })}
+                        disabled={!formData.category || !memberStates[memberIndex]}
+                        className="whitespace-nowrap"
+                      >
+                        Add school
+                      </Button>
+                    </div>
+                    {errors[`schoolName-${memberIndex}`] && (
+                      <div className="text-red-600 text-sm">{errors[`schoolName-${memberIndex}`]}</div>
+                    )}
+                  </div>
+                </>
+              )}
               <div className="flex flex-col">
                 <SelectField
                   label="T-Shirt Size"
@@ -1155,6 +1611,109 @@ export default function SignUp() {
         </div>
       </div>
 
+      <Dialog open={showAddSchoolModal} onOpenChange={setShowAddSchoolModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a School</DialogTitle>
+            <DialogDescription>
+              Add your school if it is not listed. The list will refresh after saving.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <InputField
+              label="School Name"
+              name="newSchoolName"
+              value={newSchool.name}
+              onChange={(e) =>
+                setNewSchool((prev) => ({ ...prev, name: e.target.value }))
+              }
+              required={true}
+            />
+            <InputField
+              label="School Address"
+              name="newSchoolAddress"
+              value={newSchool.address}
+              onChange={(e) =>
+                setNewSchool((prev) => ({ ...prev, address: e.target.value }))
+              }
+              required={true}
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <InputField
+                label="Postal Code"
+                name="newSchoolPostalCode"
+                value={newSchool.postalCode}
+                onChange={(e) =>
+                  setNewSchool((prev) => ({
+                    ...prev,
+                    postalCode: e.target.value,
+                  }))
+                }
+                required={true}
+              />
+              <InputField
+                label="City"
+                name="newSchoolCity"
+                value={newSchool.city}
+                onChange={(e) =>
+                  setNewSchool((prev) => ({ ...prev, city: e.target.value }))
+                }
+                required={true}
+              />
+            </div>
+            <SelectField
+              label="State"
+              name="newSchoolState"
+              value={newSchool.state}
+              onChange={(value) =>
+                setNewSchool((prev) => ({ ...prev, state: value }))
+              }
+              options={states}
+              required={true}
+            />
+            <SelectField
+              label="Category"
+              name="newSchoolCategory"
+              value={newSchool.category}
+              onChange={(value) =>
+                setNewSchool((prev) => ({ ...prev, category: value }))
+              }
+              options={categoryOptions}
+              required={true}
+              disabled={true}
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <InputField
+                label="School Code (Optional)"
+                name="newSchoolCode"
+                value={newSchool.code || ""}
+                onChange={(e) =>
+                  setNewSchool((prev) => ({ ...prev, code: e.target.value }))
+                }
+                required={false}
+              />
+              <InputField
+                label="Education District (Optional)"
+                name="newSchoolDistrict"
+                value={newSchool.district || ""}
+                onChange={(e) =>
+                  setNewSchool((prev) => ({ ...prev, district: e.target.value }))
+                }
+                required={false}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setShowAddSchoolModal(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleAddSchoolSubmit}>
+              Save School
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
         <DialogContent>
           <DialogHeader>
@@ -1266,6 +1825,8 @@ const InputField = ({
   onChange,
   required = false,
   error,
+  readOnly = false,
+  disabled = false,
 }) => (
   <div className="space-y-2">
     <Label htmlFor={name}>{label}</Label>
@@ -1276,6 +1837,8 @@ const InputField = ({
       value={value}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
+      disabled={disabled}
       className={error ? "border-red-500" : ""}
     />
     {error && <div className="text-red-600 text-sm">{error}</div>}

@@ -40,3 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.md
+ALLSCHOOLSINMALAYSIAV2.csv
+ALLSCHOOLSINMALAYSIAV2.xlsx
