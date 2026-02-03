@@ -12,8 +12,18 @@ export async function POST(req: Request) {
       teamName, teacherEmail, teacherIC, teacherGender, teacherRace,
       teacherName: body.teacherName, teacherPhone: body.teacherPhone, size: body.size,
       representingSchool: body.representingSchool, educationLevel: body.educationLevel,
-      category: body.category, city: body.city, state: body.state,
+      category: body.category,
     };
+    
+    // Only require city and state if representing a school
+    if (body.representingSchool === "yes") {
+      requiredFields.city = body.city;
+      requiredFields.state = body.state;
+      requiredFields.schoolName = body.schoolName;
+      requiredFields.schoolAddress = body.schoolAddress;
+      requiredFields.postalCode = body.postalCode;
+    }
+    
     const missingFields = Object.entries(requiredFields)
       .filter(([_, value]) => !value)
       .map(([key]) => key);

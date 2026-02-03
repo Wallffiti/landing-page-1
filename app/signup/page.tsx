@@ -332,6 +332,7 @@ export default function SignUp() {
     code: "",
     district: "",
   });
+  const [newSchoolErrors, setNewSchoolErrors] = useState<Record<string, string>>({});
   const [schoolColumnMap, setSchoolColumnMap] = useState<SchoolColumnMap | null>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -646,25 +647,50 @@ export default function SignUp() {
       code: "",
       district: "",
     });
+    setNewSchoolErrors({}); // Clear any previous errors
     setShowAddSchoolModal(true);
   };
 
   const handleAddSchoolSubmit = async () => {
-    if (
-      !newSchool.name ||
-      !newSchool.address ||
-      !newSchool.postalCode ||
-      !newSchool.city ||
-      !newSchool.state ||
-      !newSchool.category
-    ) {
+    const missingFields: string[] = [];
+    const fieldErrors: Record<string, string> = {};
+    
+    if (!newSchool.name) {
+      missingFields.push("name");
+      fieldErrors.name = "School name is required";
+    }
+    if (!newSchool.address) {
+      missingFields.push("address");
+      fieldErrors.address = "Address is required";
+    }
+    if (!newSchool.postalCode) {
+      missingFields.push("postal code");
+      fieldErrors.postalCode = "Postal code is required";
+    }
+    if (!newSchool.city) {
+      missingFields.push("city");
+      fieldErrors.city = "City is required";
+    }
+    if (!newSchool.state) {
+      missingFields.push("state");
+      fieldErrors.state = "State is required";
+    }
+    if (!newSchool.category) {
+      missingFields.push("category");
+      fieldErrors.category = "Category is required";
+    }
+
+    if (missingFields.length > 0) {
+      setNewSchoolErrors(fieldErrors);
       toast({
-        title: "Missing required fields",
-        description: "Please complete all required fields.",
+        title: "Submission Failed",
+        description: `Missing required fields: ${missingFields.join(", ")}`,
         variant: "destructive",
       });
       return;
     }
+    
+    setNewSchoolErrors({}); // Clear errors if validation passes
 
     const columnMap: SchoolColumnMap = schoolColumnMap || {
       name: "name_of_school",
@@ -737,8 +763,21 @@ export default function SignUp() {
     }
 
     try {
+      // If not representing a school, use teacher's state and city
+      let finalState = formData.state;
+      let finalCity = formData.city;
+      
+      if (formData.representingSchool === "no") {
+        finalState = teacherState;
+        // Get city from teacher's selected school
+        const teacherSchool = schools.find((school) => school.name === formData.teacherSchoolName);
+        finalCity = teacherSchool ? teacherSchool.city : "";
+      }
+
       const formattedData = {
         ...formData,
+        state: finalState,
+        city: finalCity,
         teamMembers: formData.teamMembers,
         registrationStatus: "Pending",
       };
@@ -1624,52 +1663,63 @@ export default function SignUp() {
               label="School Name"
               name="newSchoolName"
               value={newSchool.name}
-              onChange={(e) =>
-                setNewSchool((prev) => ({ ...prev, name: e.target.value }))
-              }
+              onChange={(e) => {
+                const uppercaseName = e.target.value.toUpperCase();
+                setNewSchool((prev) => ({ ...prev, name: uppercaseName }));
+                setNewSchoolErrors((prev) => ({ ...prev, name: "" }));
+              }}
               required={true}
+              error={newSchoolErrors.name}
             />
             <InputField
               label="School Address"
               name="newSchoolAddress"
               value={newSchool.address}
-              onChange={(e) =>
-                setNewSchool((prev) => ({ ...prev, address: e.target.value }))
-              }
+              onChange={(e) => {
+                setNewSchool((prev) => ({ ...prev, address: e.target.value }));
+                setNewSchoolErrors((prev) => ({ ...prev, address: "" }));
+              }}
               required={true}
+              error={newSchoolErrors.address}
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <InputField
                 label="Postal Code"
                 name="newSchoolPostalCode"
                 value={newSchool.postalCode}
-                onChange={(e) =>
+                onChange={(e) => {
                   setNewSchool((prev) => ({
                     ...prev,
                     postalCode: e.target.value,
-                  }))
-                }
+                  }));
+                  setNewSchoolErrors((prev) => ({ ...prev, postalCode: "" }));
+                }}
                 required={true}
+                error={newSchoolErrors.postalCode}
               />
               <InputField
                 label="City"
                 name="newSchoolCity"
                 value={newSchool.city}
-                onChange={(e) =>
-                  setNewSchool((prev) => ({ ...prev, city: e.target.value }))
-                }
+                onChange={(e) => {
+                  setNewSchool((prev) => ({ ...prev, city: e.target.value }));
+                  setNewSchoolErrors((prev) => ({ ...prev, city: "" }));
+                }}
                 required={true}
+                error={newSchoolErrors.city}
               />
             </div>
             <SelectField
               label="State"
               name="newSchoolState"
               value={newSchool.state}
-              onChange={(value) =>
-                setNewSchool((prev) => ({ ...prev, state: value }))
-              }
+              onChange={(value) => {
+                setNewSchool((prev) => ({ ...prev, state: value }));
+                setNewSchoolErrors((prev) => ({ ...prev, state: "" }));
+              }}
               options={states}
               required={true}
+              error={newSchoolErrors.state}
             />
             <SelectField
               label="Category"
