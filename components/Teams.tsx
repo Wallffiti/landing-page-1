@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; // Ensure you have a supabase client
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
 interface Team {
   id: string;
@@ -52,6 +54,17 @@ export default function Teams() {
   return (
     <section id="teams" className="py-12">
       <div className="container mx-auto px-4 md:w-4/5 lg:w-3/4">
+        <div className="flex justify-center mb-6">
+          <Link href="https://bugcrusher.net" target="_blank" rel="noopener noreferrer">
+            <Image
+              src="https://bugcrusher.net/wp-content/uploads/2024/03/bugcrusher-logo-125x125.png"
+              alt="BugCrusher Logo"
+              width={125}
+              height={125}
+              priority
+            />
+          </Link>
+        </div>
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold mb-2">Registered Teams</h2>

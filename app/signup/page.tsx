@@ -28,6 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import Image from "next/image";
 
 // Validation functions
 const validateEmail = (email: string): string => {
@@ -1611,11 +1612,28 @@ export default function SignUp() {
   }, [showResultModal]);
 
   return (
-    <div className="min-h-[120vh] bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 py-8 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center mb-4">
+          <Link href="https://bugcrusher.net" target="_blank" rel="noopener noreferrer">
+            <Image
+              src="https://bugcrusher.net/wp-content/uploads/2024/03/bugcrusher-logo-125x125.png"
+              alt="BugCrusher Logo"
+              width={125}
+              height={125}
+              priority
+            />
+          </Link>
+        </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign up for the Hackathon
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Already registered?{" "}
+          <Link href="/status" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Check the status here
+          </Link>
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
