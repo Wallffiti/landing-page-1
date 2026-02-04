@@ -100,16 +100,6 @@ export default function NavBar() {
                 </li>
                 <li>
                   <Link
-                    href="https://bugcrusher.net/results/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#282a88] font-bold text-base font-roboto hover:text-blue-600 px-4"
-                  >
-                    Results
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="http://challenge.bugcrusher.net"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -258,16 +248,6 @@ export default function NavBar() {
                   className="text-[#282a88] font-bold text-base font-roboto hover:text-blue-600 px-2.5 py-2.5"
                 >
                   FAQs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://bugcrusher.net/results/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#282a88] font-bold text-base font-roboto hover:text-blue-600 px-2.5 py-2.5"
-                >
-                  Results
                 </Link>
               </li>
               <li>
