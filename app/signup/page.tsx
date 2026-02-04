@@ -334,6 +334,7 @@ export default function SignUp() {
   });
   const [newSchoolErrors, setNewSchoolErrors] = useState<Record<string, string>>({});
   const [schoolColumnMap, setSchoolColumnMap] = useState<SchoolColumnMap | null>(null);
+  const [isAddingSchool, setIsAddingSchool] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -652,6 +653,7 @@ export default function SignUp() {
   };
 
   const handleAddSchoolSubmit = async () => {
+    setIsAddingSchool(true);
     const missingFields: string[] = [];
     const fieldErrors: Record<string, string> = {};
     
@@ -687,6 +689,35 @@ export default function SignUp() {
         description: `Missing required fields: ${missingFields.join(", ")}`,
         variant: "destructive",
       });
+      setIsAddingSchool(false);
+      return;
+    }
+    
+    // Check for duplicate school
+    const normalizedNewSchoolName = newSchool.name.toUpperCase().replace(/\s+/g, "");
+    const normalizedNewState = normalizeState(newSchool.state);
+    const normalizedNewCategory = normalizeCategory(newSchool.category);
+    
+    const duplicateSchool = schools.find((school) => {
+      const normalizedExistingName = school.name.toUpperCase().replace(/\s+/g, "");
+      const normalizedExistingState = normalizeState(school.state);
+      const normalizedExistingCategory = normalizeCategory(school.category);
+      
+      return (
+        normalizedExistingName === normalizedNewSchoolName &&
+        normalizedExistingState === normalizedNewState &&
+        normalizedExistingCategory === normalizedNewCategory
+      );
+    });
+
+    if (duplicateSchool) {
+      setNewSchoolErrors({ name: "This school already exists in the list" });
+      toast({
+        title: "Duplicate School",
+        description: `"${duplicateSchool.name}" already exists in ${newSchool.state} (${newSchool.category}).`,
+        variant: "destructive",
+      });
+      setIsAddingSchool(false);
       return;
     }
     
@@ -727,6 +758,7 @@ export default function SignUp() {
           description: error.message || "Please try again.",
           variant: "destructive",
         });
+        setIsAddingSchool(false);
         return;
       }
 
@@ -741,6 +773,7 @@ export default function SignUp() {
         }
       }
       setShowAddSchoolModal(false);
+      setIsAddingSchool(false);
     } catch (error) {
       console.error("Failed to add school:", error);
       toast({
@@ -748,6 +781,7 @@ export default function SignUp() {
         description: "Please try again.",
         variant: "destructive",
       });
+      setIsAddingSchool(false);
     }
   };
 
@@ -1754,11 +1788,37 @@ export default function SignUp() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowAddSchoolModal(false)}>
+            <Button type="button" variant="outline" onClick={() => setShowAddSchoolModal(false)} disabled={isAddingSchool}>
               Cancel
             </Button>
-            <Button type="button" onClick={handleAddSchoolSubmit}>
-              Save School
+            <Button type="button" onClick={handleAddSchoolSubmit} disabled={isAddingSchool}>
+              {isAddingSchool ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                "Save School"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
